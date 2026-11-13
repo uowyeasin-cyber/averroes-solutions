@@ -6,7 +6,7 @@
 <title>Averroes Solutions</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Averroes Solutions sells premium ready-made websites, online stores, apps and AI tools, and builds custom ones. Try the live demo, pick a plan, launch in days.">
-<meta name="theme-color" content="#0A1A44">
+<meta name="theme-color" content="#050E26">
 <meta property="og:title" content="Averroes Solutions · Ready-made websites, apps & AI">
 <meta property="og:description" content="Try the live demo, pick a plan, and launch in days. Custom builds with fixed quotes.">
 <meta property="og:image" content="img/cover-sunnah-store.webp">
@@ -32,13 +32,20 @@
   color-scheme:light;
 }
 :root[data-theme="dark"]{
-  --bg:#0A1A44; --bg-2:#0E2152; --bg-3:#14295F; --panel:#10245A; --line:#1F3670; --line-2:#2B4583;
+  --bg:#050E26; --bg-2:#091634; --bg-3:#0E1E45; --panel:#0B1A3D; --line:#1A2B5A; --line-2:#263B72;
   --ink:#F4F7FE; --ink-2:#D6DFF5; --mute:#A8B6DA; --faint:#7787B3;
   --accent:#8DB0FF; --accent-2:#B5C8FF; --accent-soft:rgba(141,176,255,.13); --good:#3DD39A;
-  --btn:#FFFFFF; --btn-ink:#0A1A44; --dark:#071335; --dark-2:#0C1D4D; --on-dark:#EEF2FC; --on-dark-2:#A9B6D8;
+  --btn:#FFFFFF; --btn-ink:#050E26; --dark:#040B21; --dark-2:#0A1739; --on-dark:#EEF2FC; --on-dark-2:#A9B6D8;
   --sh-1:0 1px 2px rgba(0,0,0,.4); --sh-2:0 16px 40px -18px rgba(0,0,0,.7); --sh-3:0 40px 90px -30px rgba(0,0,0,.85); color-scheme:dark}
 *{box-sizing:border-box}
-:root[data-theme="dark"] body{background:radial-gradient(1100px 620px at 85% -8%,rgba(96,140,255,.22),transparent 62%),radial-gradient(900px 520px at -10% 30%,rgba(60,100,230,.14),transparent 60%),var(--bg);background-repeat:no-repeat}
+:root[data-theme="dark"] body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background:
+  radial-gradient(60vw 50vh at 100% 0%,rgba(70,120,255,.26),transparent 70%),
+  radial-gradient(50vw 55vh at 0% 35%,rgba(56,78,220,.20),transparent 70%),
+  radial-gradient(55vw 50vh at 10% 105%,rgba(30,150,255,.14),transparent 70%),
+  radial-gradient(50vw 50vh at 95% 100%,rgba(110,90,255,.16),transparent 70%)}
+:root[data-theme="dark"] body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-image:linear-gradient(rgba(140,170,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(140,170,255,.055) 1px,transparent 1px);background-size:64px 64px;
+  -webkit-mask-image:radial-gradient(120% 90% at 50% 0%,#000 25%,transparent 80%);mask-image:radial-gradient(120% 90% at 50% 0%,#000 25%,transparent 80%)}
 html{scroll-behavior:smooth;scroll-padding-top:90px;-webkit-text-size-adjust:100%}
 html.noscroll{overflow:hidden}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
