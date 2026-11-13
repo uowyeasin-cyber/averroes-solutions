@@ -8,7 +8,7 @@
     out: '<path d="M7 17L17 7M8 7h9v9"/>', x: '<path d="M6 6l12 12M18 6L6 18"/>', lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
     chat: '<path d="M21 12a9 9 0 0 1-13.4 7.9L3 21l1.2-4.4A9 9 0 1 1 21 12z"/>', cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
     mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>', arr: '<path d="M5 12h14M13 6l6 6-6 6"/>', check: '<path d="M5 12l5 5L20 7"/>',
-    left: '<path d="M15 6l-6 6 6 6"/>', star: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>', right: '<path d="M9 6l6 6-6 6"/>', eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    left: '<path d="M15 6l-6 6 6 6"/>', star: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>', right: '<path d="M9 6l6 6-6 6"/>', send: '<path d="M4 12l16-8-6 16-2.5-6.5z"/>', spark: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>', copy: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>', print: '<path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/>', search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>', eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   };
   const ic = (n, cls = "i") => `<svg class="${cls}" viewBox="0 0 24 24">${I[n]}</svg>`;
   const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -328,7 +328,7 @@
   function closeStore(fromPop) {
     SB.classList.remove("on"); document.documentElement.classList.remove("noscroll");
     setTimeout(() => { SB.hidden = true; }, 300); pause(false);
-    if (!fromPop && location.hash.startsWith("#buy/")) history.pushState(null, "", location.pathname + location.search);
+    if (!fromPop && /^#(buy\/|track)/.test(location.hash)) history.pushState(null, "", location.pathname + location.search);
   }
   const plan = () => (st.p.plans || [])[st.plan] || { t: "Standard", price: st.p.price || "" };
   const talk = p => `<div class="st-talk"><b>${esc(t("stTalkH"))}</b><p>${esc(t("stTalkP"))}</p>
@@ -336,6 +336,7 @@
     <a href="${waLink("Hi " + AGENCY.name + ", I'd like to book a short call about " + p.n + ".")}" target="_blank" rel="noopener">${ic("cal")}<span>${esc(t("stCall"))}</span></a>
     ${SITE.email ? `<a href="mailto:${esc(SITE.email)}?subject=${encodeURIComponent(p.n)}">${ic("mail")}<span>${esc(t("orEmail"))}</span></a>` : ""}</div></div>`;
   function drawStore() {
+    if (st.step === "track") return drawTrack();
     const p = st.p, pl = plan(), steps = ["product", "checkout", "done"], si = steps.indexOf(st.step);
     const head = `<header class="st-h"><div class="st-crumb">${p.status === "soon" ? `<span class="on">${esc(t("soonTag"))}</span>` : steps.map((s, i) => `<span class="${i === si ? "on" : i < si ? "ok" : ""}">${i + 1}. ${esc(t("st_" + s))}</span>`).join("")}</div>
       <button class="st-x" type="button" aria-label="Close">${ic("x")}</button></header>`;
@@ -386,12 +387,86 @@
       const o = st.order || {};
       body = `<div class="st-done"><span class="st-ok">${ic("check")}</span><h2 id="stTitle">${esc(t("doneH"))}</h2>
         <p class="st-lead">${esc(t("doneP").replace("{id}", o.id || ""))}</p>
-        <div class="st-box st-sum"><div class="st-item"><img src="${img(p.img)}" alt=""><span><b>${esc(p.n)} · ${esc(pl.t)}</b><small>${esc(t("doneNo"))} ${esc(o.id || "")}</small></span><b>${esc(pl.price || "")}</b></div></div>
-        <ol class="st-how"><li><b>${esc(t("done1"))}</b><span>${esc(t("done1p"))}</span></li><li><b>${esc(t("done2"))}</b><span>${esc(t("done2p"))}</span></li><li><b>${esc(t("done3"))}</b><span>${esc(t("done3p"))}</span></li></ol>
-        <div class="st-acts"><a class="btn solid" href="${waLink(`Hi ${AGENCY.name}, I just placed order ${o.id || ""} for ${p.n} (${pl.t}).`)}" target="_blank" rel="noopener">${esc(t("doneWa"))}</a><button class="btn" type="button" data-close-store>${esc(t("doneBack"))}</button></div></div>`;
+        ${receipt(o)}
+        <div class="st-acts wrap">${rcActs(o)}<button class="btn" type="button" data-close-store>${esc(t("doneBack"))}</button></div>
+        <ol class="st-how"><li><b>${esc(t("done1"))}</b><span>${esc(t("done1p"))}</span></li><li><b>${esc(t("done2"))}</b><span>${esc(t("done2p"))}</span></li><li><b>${esc(t("done3"))}</b><span>${esc(t("done3p"))}</span></li></ol></div>`;
     }
     SB.querySelector(".st-panel").innerHTML = head + `<div class="st-body">${body}</div>`;
     SB.querySelector(".st-body").scrollTop = 0;
+    drawQR();
+  }
+
+  // ---------- receipt, order history and tracking ----------
+  const STATUS = { new: "Received", contacted: "Confirmed", paid: "In progress", done: "Delivered", cancelled: "Cancelled" };
+  const history_ = { get() { try { return JSON.parse(store.get("av-orders") || "[]"); } catch { return []; } },
+    save(o) { const list = this.get().filter(x => x.id !== o.id); list.unshift(o); store.set("av-orders", JSON.stringify(list.slice(0, 30))); } };
+  const trackUrl = id => (ONLINE ? location.origin + "/" : "https://averroessolutions.vercel.app/") + "#track/" + id;
+  const when = at => { try { return new Date(at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }); } catch { return ""; } };
+  function receipt(o) {
+    const st_ = o.status || "new", rows = [["Customer", o.name], ["Email", o.email], ["Phone", o.phone], ["Business", o.business], ["Country", o.country], ["Domain", o.domain], ["Payment method", o.pay]].filter(r => r[1]);
+    return `<div class="rcpt" id="rcpt">
+      <div class="rc-top"><img src="${img("logo-wordmark")}" alt="${esc(AGENCY.name)}"><span class="rc-st ${esc(st_)}">${esc(o.statusLabel || STATUS[st_] || "Received")}</span></div>
+      <div class="rc-id"><div><small>${esc(t("rcTitle"))} · ${esc(t("trackId"))}</small><b>${esc(o.id || "")}</b><small>${esc(when(o.at))}</small></div>
+        <div class="rc-qrw"><div class="rc-qr" data-qr="${esc(trackUrl(o.id || ""))}"></div><span>${esc(t("rcScan"))}</span></div></div>
+      ${rows.length ? `<dl class="rc-dl">${rows.map(r => `<div><dt>${esc(r[0])}</dt><dd>${esc(r[1])}</dd></div>`).join("")}</dl>` : ""}
+      <div class="rc-item"><span><b>${esc(o.product || "")}</b><small>${esc(o.plan ? o.plan + " plan" : "")}</small></span><b>${esc(o.price || t("shopAsk"))}</b></div>
+      <div class="rc-tot"><span>Total, invoiced after we confirm</span><b>${esc(o.price || t("shopAsk"))}</b></div>
+      <p class="rc-note">${esc(t("rcNote"))} ${esc(trackUrl(o.id || ""))}</p></div>`;
+  }
+  const rcActs = o => `<button class="btn solid" type="button" data-print>${ic("print")}${esc(t("rcPrint"))}</button>
+    <button class="btn" type="button" data-copy="${esc(o.id || "")}">${ic("copy")}<span>${esc(t("rcCopy"))}</span></button>
+    <a class="btn" href="${waLink(`Hi ${AGENCY.name}, about my order ${o.id || ""} (${o.product || ""}${o.plan ? ", " + o.plan : ""}).`)}" target="_blank" rel="noopener">${ic("chat")}WhatsApp</a>`;
+  let qrLib;
+  function drawQR() {
+    const box = SB.querySelector("[data-qr]"); if (!box) return;
+    const go = () => { try { const q = window.qrcode(0, "M"); q.addData(box.dataset.qr); q.make(); box.innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); } catch {} };
+    if (window.qrcode) return go();
+    qrLib ||= new Promise((ok, no) => { const s = document.createElement("script"); s.src = (window.QR_SRC || "/vendor/qrcode.js"); s.onload = ok; s.onerror = no; document.head.appendChild(s); });
+    qrLib.then(go, () => {});
+  }
+  const tk = { id: "", email: "", res: null, err: "", busy: false };
+  function openTrack(id) {
+    st.step = "track"; st.p = null; tk.res = null; tk.err = "";
+    if (id) { tk.id = id.toUpperCase(); const h = history_.get().find(x => x.id === tk.id); if (h) tk.email = h.email; }
+    pause(true); drawStore(); SB.hidden = false; document.documentElement.classList.add("noscroll");
+    requestAnimationFrame(() => SB.classList.add("on"));
+    const want = "#track" + (id ? "/" + tk.id : ""); if (location.hash !== want) history.pushState(null, "", want);
+    if (tk.id && tk.email) lookup();
+  }
+  function drawTrack() {
+    const mine = history_.get(), r = tk.res;
+    const steps = ["new", "contacted", "paid", "done"], at = r ? steps.indexOf(r.status) : -1;
+    SB.querySelector(".st-panel").innerHTML = `<header class="st-h"><div class="st-crumb"><span class="on">${esc(t("trackH"))}</span></div><button class="st-x" type="button" aria-label="Close">${ic("x")}</button></header>
+      <div class="st-body"><div class="trk">
+        <div><h2 id="stTitle">${esc(t("trackH"))}</h2><p class="st-lead">${esc(t("trackP"))}</p>
+          <form class="st-form" id="trkF"><div class="two"><label>${esc(t("trackId"))}<input name="id" required value="${esc(tk.id)}" placeholder="AV-1A2B3C" autocapitalize="characters"></label>
+            <label>${esc(t("coEmail"))}<input name="email" type="email" required value="${esc(tk.email)}" autocomplete="email"></label></div>
+            <button class="btn solid" type="submit" ${tk.busy ? "disabled" : ""}>${ic("search")}${esc(tk.busy ? "Checking…" : t("trackBtn"))}</button>
+            ${tk.err ? `<p class="st-note err">${esc(tk.err)}</p>` : ""}</form>
+          ${r ? `<div class="trk-res">
+            ${r.status === "cancelled" ? "" : `<ol class="tl">${steps.map((s, i) => `<li class="${i <= at ? "on" : ""}">${esc(STATUS[s])}</li>`).join("")}</ol>`}
+            <p class="trk-msg"><b>${esc(r.statusLabel)}.</b> ${esc(r.statusText || "")}</p>
+            ${receipt(r)}<div class="st-acts wrap">${rcActs(r)}</div></div>` : ""}
+        </div>
+        <aside class="st-side"><div class="st-box"><b class="st-bh">${esc(t("trackMine"))}</b>
+          ${mine.length ? `<div class="mine">${mine.map(o => `<button type="button" data-mine="${esc(o.id)}"><span><b>${esc(o.id)}</b><small>${esc(o.product || "")}${o.plan ? " · " + esc(o.plan) : ""} · ${esc(when(o.at))}</small></span>${ic("right")}</button>`).join("")}</div>` : `<p class="muted2">${esc(t("trackNone"))}</p>`}
+        </div>${SITE.whatsapp ? `<div class="st-talk"><b>${esc(t("stTalkH"))}</b><div class="st-talk-a"><a href="${waLink("Hi " + AGENCY.name + ", I have a question about my order.")}" target="_blank" rel="noopener">${ic("chat")}<span>WhatsApp</span></a></div></div>` : ""}</aside>
+      </div></div>`;
+    drawQR();
+  }
+  async function lookup() {
+    tk.busy = true; tk.err = ""; drawTrack();
+    const local = history_.get().find(x => x.id === tk.id && x.email.toLowerCase() === tk.email.toLowerCase());
+    try {
+      if (!ONLINE) { if (!local) throw new Error(t("trackNot")); tk.res = { ...local, statusLabel: STATUS[local.status || "new"], statusText: "We have your order and will contact you within 24 hours to confirm the details." }; }
+      else {
+        const r = await fetch(`/api/order?id=${encodeURIComponent(tk.id)}&email=${encodeURIComponent(tk.email)}`), j = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(j.error || t("trackNot"));
+        tk.res = j.order; if (local) history_.save({ ...local, status: j.order.status });
+      }
+      if (location.hash !== "#track/" + tk.id) history.replaceState(null, "", "#track/" + tk.id);
+    } catch (e) { tk.res = null; tk.err = e.message || t("trackNot"); }
+    tk.busy = false; drawTrack();
   }
   async function post(body) {
     if (!ONLINE) return (body.kind === "order" ? "AV-" : body.kind === "quote" ? "QT-" : "WL-") + Math.random().toString(36).slice(2, 8).toUpperCase();
@@ -409,20 +484,84 @@
     delete body.agree;
     try {
       const id = await post(body);
-      if (kind === "order") { st.order = { id }; st.step = "done"; drawStore(); }
+      if (kind === "order") {
+        st.order = { id, at: new Date().toISOString(), status: "new", product: st.p.n, plan: pl.t, price: pl.price || "", pay: f.pay, name: f.name, email: f.email, phone: f.phone, business: f.business, country: f.country, domain: f.domain };
+        history_.save(st.order); st.step = "done"; drawStore();
+      }
       else { note.textContent = t("soonDone"); form.reset(); btn.disabled = false; }
     } catch (e) { note.textContent = e.message || t("coFail"); note.className = "st-note err"; btn.disabled = false; }
   }
   SB.addEventListener("click", e => {
     if (e.target === SB || e.target.closest(".st-x") || e.target.closest("[data-close-store]")) return closeStore();
+    if (e.target.closest("[data-print]")) return print();
+    const cp = e.target.closest("[data-copy]"); if (cp) { navigator.clipboard?.writeText(cp.dataset.copy).then(() => { const s = cp.querySelector("span"); if (s) { s.textContent = t("rcCopied"); setTimeout(() => { s.textContent = t("rcCopy"); }, 1600); } }); return; }
+    const mn = e.target.closest("[data-mine]"); if (mn) { const h = history_.get().find(x => x.id === mn.dataset.mine); tk.id = h.id; tk.email = h.email; return lookup(); }
     const pb = e.target.closest("[data-plan]"); if (pb) { st.plan = +pb.dataset.plan; $$(".st-plan", SB).forEach((b, i) => b.setAttribute("aria-checked", String(i === st.plan))); return; }
     if (e.target.closest("[data-jump]")) return SB.querySelector(".st-side").scrollIntoView({ behavior: REDUCED ? "auto" : "smooth" });
     const go = e.target.closest("[data-go]"); if (go) { st.step = go.dataset.go; drawStore(); }
   });
   SB.addEventListener("change", e => { if (e.target.name === "rating") { const v = +e.target.value; $$(".st-stars label", SB).forEach((l, i) => l.classList.toggle("on", i < v)); } });
-  SB.addEventListener("submit", e => { e.preventDefault(); if (e.target.id === "revF") return sendReview(e.target); sendOrder(e.target, e.target.id === "notifyF" ? "waitlist" : "order"); });
+  SB.addEventListener("submit", e => { e.preventDefault(); if (e.target.id === "revF") return sendReview(e.target);
+    if (e.target.id === "trkF") { const f = new FormData(e.target); tk.id = String(f.get("id") || "").trim().toUpperCase(); tk.email = String(f.get("email") || "").trim(); return lookup(); } sendOrder(e.target, e.target.id === "notifyF" ? "waitlist" : "order"); });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !SB.hidden) closeStore(); });
-  addEventListener("popstate", () => { const m = location.hash.match(/^#buy\/(.+)$/); if (m) openStore(m[1]); else if (!SB.hidden) closeStore(true); });
+  addEventListener("popstate", () => { const m = location.hash.match(/^#buy\/(.+)$/), k = location.hash.match(/^#track(?:\/(.+))?$/); if (m) openStore(m[1]); else if (k) openTrack(k[1]); else if (!SB.hidden) closeStore(true); });
+
+  // ---------- AI chat assistant ----------
+  function chat() {
+    const fab = document.createElement("button"), box = document.createElement("div");
+    fab.className = "cb-fab"; fab.type = "button"; fab.setAttribute("aria-label", t("chatName"));
+    fab.innerHTML = `${ic("spark")}<span class="l">${esc(t("chatFab"))}</span><span class="dot"></span>`;
+    box.className = "cb"; box.hidden = true; box.setAttribute("role", "dialog"); box.setAttribute("aria-label", t("chatName"));
+    box.innerHTML = `<header class="cb-h"><span class="cb-av"><img src="icon.svg" alt=""></span><span><b>${esc(t("chatName"))}</b><small><i></i>${esc(t("chatSub"))}</small></span><button type="button" data-cb-x aria-label="Close">${ic("x")}</button></header>
+      <div class="cb-log" aria-live="polite"></div><div class="cb-chips"></div>
+      <form class="cb-f"><textarea rows="1" placeholder="${esc(t("chatPh"))}" aria-label="${esc(t("chatPh"))}" maxlength="1000"></textarea><button type="submit" aria-label="Send">${ic("send")}</button></form>
+      <p class="cb-foot">${esc(t("chatFoot"))} <a href="${waLink("Hi " + AGENCY.name + ", I have a question.")}" target="_blank" rel="noopener">${esc(t("chatHuman"))}</a>.</p>`;
+    document.body.append(fab, box);
+    const log = $(".cb-log", box), ta = $("textarea", box), send = $(".cb-f button", box), chips = $(".cb-chips", box);
+    let msgs = []; try { msgs = JSON.parse(sessionStorage.getItem("av-chat") || "[]"); } catch {}
+    const keep = () => { try { sessionStorage.setItem("av-chat", JSON.stringify(msgs.slice(-30))); } catch {} };
+    const nameOf = s => (shopItems().find(x => slug(x.n) === s) || {}).n;
+    // Bot text: escaped, then **bold**, "- " bullets, site links (#buy/…, #track/…) and web links.
+    const fmt = s => {
+      let h = esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+      h = h.replace(/(^|[\s(])#buy\/([a-z0-9-]+)/g, (m, a, sl) => `${a}<a href="#buy/${sl}" data-buy="${sl}">${esc(nameOf(sl) || "View product")}</a>`);
+      h = h.replace(/(^|[\s(])#track(?:\/([A-Z0-9-]+))?/g, (m, a, id) => `${a}<a href="#track${id ? "/" + id : ""}" data-track="${id || ""}">${esc(t("trackNav"))}</a>`);
+      h = h.replace(/(^|[\s(])#(quote|pricing|shop|faq)\b/g, (m, a, k) => `${a}<a href="#${k}" data-cb-go>${k === "quote" ? "quote form" : k}</a>`);
+      h = h.replace(/(https?:\/\/[^\s<)]+[^\s<).,])/g, u => `<a href="${u}" target="_blank" rel="noopener">${u.replace(/^https?:\/\/(www\.)?/, "").slice(0, 40)}</a>`);
+      const lines = h.split(/\n/); let out = "", inL = false;
+      lines.forEach(l => { const m = l.match(/^\s*[-*•]\s+(.*)/); if (m) { if (!inL) { out += "<ul>"; inL = true; } out += `<li>${m[1]}</li>`; } else { if (inL) { out += "</ul>"; inL = false; } out += (out && !out.endsWith("</ul>") ? "<br>" : "") + l; } });
+      return out + (inL ? "</ul>" : "");
+    };
+    const bubble = (role, text) => { const d = document.createElement("div"); d.className = "cb-m " + (role === "user" ? "me" : "bot"); d.innerHTML = role === "user" ? esc(text) : fmt(text); log.appendChild(d); log.scrollTop = log.scrollHeight; return d; };
+    const draw = () => { log.innerHTML = ""; bubble("bot", t("chatGreet")); msgs.forEach(m => bubble(m.role, m.text));
+      chips.innerHTML = msgs.length ? "" : (UI.en.chatChips || []).map(c => `<button type="button" data-q="${esc(c[1])}">${esc(c[0])}</button>`).join(""); };
+    async function ask(q) {
+      q = q.trim(); if (!q || send.disabled) return;
+      msgs.push({ role: "user", text: q }); keep(); bubble("user", q); chips.innerHTML = ""; ta.value = ""; ta.style.height = "";
+      const wait = bubble("bot", ""); wait.innerHTML = `<span class="cb-typing"><i></i><i></i><i></i></span>`; send.disabled = true;
+      let reply;
+      try {
+        if (!ONLINE) throw new Error(t("chatOff"));
+        const r = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: msgs.slice(-12) }) });
+        const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || t("chatOff")); reply = j.reply;
+        msgs.push({ role: "bot", text: reply }); keep();
+      } catch (e) { reply = e.message || t("chatOff"); }
+      wait.innerHTML = fmt(reply); log.scrollTop = log.scrollHeight; send.disabled = false; ta.focus();
+    }
+    const open = () => { draw(); box.hidden = false; requestAnimationFrame(() => box.classList.add("on")); fab.classList.add("hide"); setTimeout(() => ta.focus(), 80); };
+    const close = () => { box.classList.remove("on"); fab.classList.remove("hide"); setTimeout(() => { box.hidden = true; }, 250); };
+    fab.addEventListener("click", open);
+    box.addEventListener("click", e => {
+      if (e.target.closest("[data-cb-x]")) return close();
+      const c = e.target.closest("[data-q]"); if (c) return ask(c.dataset.q);
+      if (e.target.closest("[data-buy],[data-track]") && innerWidth < 560) close();
+      if (e.target.closest("[data-cb-go]")) close();
+    });
+    $(".cb-f", box).addEventListener("submit", e => { e.preventDefault(); ask(ta.value); });
+    ta.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(ta.value); } });
+    ta.addEventListener("input", () => { ta.style.height = ""; ta.style.height = Math.min(120, ta.scrollHeight) + "px"; });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && !box.hidden && SB.hidden) close(); });
+  }
 
   // ---------- motion ----------
   let io;
@@ -454,6 +593,7 @@
     const tb = e.target.closest("[data-t]"); if (tb) { tab = tb.dataset.t; renderPricing(); return swapPlans(); }
     if (e.target.closest("[data-review]")) { e.preventDefault(); return openReview(); }
     const by = e.target.closest("[data-buy]"); if (by) { e.preventDefault(); return openStore(by.dataset.buy, by.dataset.pl); }
+    const tr = e.target.closest("[data-track]"); if (tr) { e.preventDefault(); return openTrack(tr.dataset.track || ""); }
     const pick = e.target.closest("[data-pick]");
     if (pick) {
       const sel = $("#fService"), v = pick.dataset.pick;
@@ -505,7 +645,8 @@
 
   // ---------- start ----------
   renderBand(); renderAll(); onScroll();
-  { const m0 = location.hash.match(/^#buy\/(.+)$/); if (m0) openStore(m0[1]); }
+  { const m0 = location.hash.match(/^#buy\/(.+)$/), k0 = location.hash.match(/^#track(?:\/(.+))?$/); if (m0) openStore(m0[1]); else if (k0) openTrack(k0[1]); }
+  chat();
   if (ONLINE) fetch("/api/site").then(r => r.ok ? r.json() : null).then(j => {
     if (!j || !j.content) return;
     EDIT = { ...EDIT, ...j.content };

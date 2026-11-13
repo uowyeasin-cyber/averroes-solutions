@@ -1,8 +1,10 @@
 // Orders, custom quote requests, client reviews and "notify me" sign-ups from the site.
 // POST (public): saves one order, returns its number. Nothing is charged; the owner sends the invoice.
+// GET ?id=&email= (public): one order, only when the number and checkout email match (receipt and tracking).
 // GET (owner): every order, newest first. PATCH (owner) { id, status }: marks an order new / contacted / paid / done / cancelled.
 import crypto from "node:crypto";
-import { guard, readJSON, send, store } from "./_lib.js";
+import { guard, query, readJSON, send, store } from "./_lib.js";
+import { findOrder, publicView, limited } from "./_orders.js";
 
 const STATUS = ["new", "contacted", "paid", "done", "cancelled"];
 const clip = (v, n) => String(v ?? "").trim().slice(0, n);
@@ -29,6 +31,12 @@ export default async function handler(req, res) {
       return send(res, 200, { id });
     }
     if (req.method === "GET") {
+      const q = query(req);
+      if (q.get("id")) {
+        if (limited(req, 20, 10 * 60e3)) return send(res, 429, { error: "Too many tries. Please wait a few minutes." });
+        const o = await findOrder(q.get("id"), q.get("email"));
+        return o ? send(res, 200, { order: publicView(o) }) : send(res, 404, { error: "We could not find that order. Check the order number and the email you used at checkout." });
+      }
       if (!guard(req, res)) return;
       const items = (await store.list("orders/")).slice(0, 300);
       const orders = (await Promise.all(items.map((i) => store.getJSON(i).then((o) => ({ ...o, file: i.pathname })).catch(() => null)))).filter(Boolean);
