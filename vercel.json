@@ -1,0 +1,15 @@
+{
+  "cleanUrls": true,
+  "functions": {
+    "api/*.js": { "includeFiles": "{data/**,home.html}" }
+  },
+  "rewrites": [
+    { "source": "/", "destination": "/api/home" },
+    { "source": "/services/:slug", "destination": "/api/page?kind=service&slug=:slug" },
+    { "source": "/guides/:slug", "destination": "/api/page?kind=guide&slug=:slug" },
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" }
+  ],
+  "headers": [
+    { "source": "/admin/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] }
+  ]
+}
