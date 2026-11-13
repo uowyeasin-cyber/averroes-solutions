@@ -292,7 +292,7 @@
         <div class="swatches">${sw.map(([c, n]) => `<button type="button" title="${n}" aria-label="${n}" data-c="${c}" style="background:${c}" aria-pressed="${c === cur}"></button>`).join("")}</div>
         <label class="f" style="max-width:240px">Custom colour<input class="t" type="color" id="cPick" value="${esc(cur)}" style="height:44px;padding:4px"></label></div>
         <div class="panel"><header><div><h2>Default appearance</h2><p class="muted">What first-time visitors see. They can still switch with the moon button.</p></div></header>
-        <div class="seg" role="group">${[["auto", "Follow device"], ["light", "Light"], ["dark", "Dark"]].map(([v, n]) => `<button type="button" data-m="${v}" aria-pressed="${v === mode}">${n}</button>`).join("")}</div></div>`;
+        <div class="seg" role="group">${[["auto", "Premium blue (default)"], ["light", "Professional white"], ["dark", "Premium blue"]].map(([v, n]) => `<button type="button" data-m="${v}" aria-pressed="${v === mode}">${n}</button>`).join("")}</div></div>`;
       const setC = c => { S.brand.accent = c; setDirty(); VIEWS.theme(); };
       $$("[data-c]").forEach(b => b.addEventListener("click", () => setC(b.dataset.c)));
       $("#cPick").addEventListener("change", e => setC(e.target.value));

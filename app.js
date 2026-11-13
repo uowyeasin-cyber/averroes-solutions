@@ -465,7 +465,7 @@
   $("#menu").addEventListener("click", () => { const o = $("#nav").classList.toggle("open"); $("#menu").setAttribute("aria-expanded", String(o)); });
   $("#theme").addEventListener("click", () => {
     const root = document.documentElement;
-    const light = root.dataset.theme ? root.dataset.theme === "light" : matchMedia("(prefers-color-scheme: light)").matches;
+    const light = (root.dataset.theme || "dark") === "light";
     root.dataset.theme = light ? "dark" : "light"; store.set("av-theme", root.dataset.theme);
   });
   const savedTheme = store.get("av-theme");
