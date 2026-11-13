@@ -11,7 +11,7 @@ export function servicePage(D, S, slug) {
   return {
     kind: "service", slug, path: `/services/${slug}`,
     title: o.title || sp.title.replace(/Yeasin Arafat/g, D.AGENCY.name), desc: o.desc || sp.meta.replace(/Yeasin Arafat/g, D.AGENCY.name), kw: o.kw || sp.kw,
-    h1: o.h1 || sp.h1, intro: o.intro || sp.intro.replace(/\bI build\b/g, "We build").replace(/\bI\b/g, "we").replace(/\bMy own\b/g, "Our own").replace(/\bmy\b/g, "our"),
+    h1: o.h1 || sp.h1, intro: o.intro || sp.intro.replace(/^I'm the founder of [^.]+\.\s*/, "").replace(/\bI'm\b/g, "we're").replace(/\bI've\b/g, "we've").replace(/\bI\b/g, "we").replace(/\bMy\b/g, "Our").replace(/\bmy\b/g, "our").replace(/\bme\b/g, "us").replace(/(^|[.!?] )we\b/g, "$1We"),
     points: sp.points || card.l || [], work: sp.work || [], pkg: sp.pkg, faq: (o.faq || sp.faq || []), bn: sp.bn, name: card.t || sp.nav,
     sections: o.sections || [],
   };
