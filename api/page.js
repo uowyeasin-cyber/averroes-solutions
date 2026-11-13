@@ -43,7 +43,7 @@ export function render(D, S, p, base) {
   return `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>${e(p.title)}</title><meta name="description" content="${e(p.desc)}">${p.kw ? `<meta name="keywords" content="${e(p.kw)}">` : ""}
 <link rel="canonical" href="${e(url)}"><meta property="og:type" content="website"><meta property="og:title" content="${e(p.title)}"><meta property="og:description" content="${e(p.desc)}"><meta property="og:url" content="${e(url)}"><meta property="og:site_name" content="${e(brand)}">
-${S.verify?.google ? `<meta name="google-site-verification" content="${e(S.verify.google)}">` : ""}<link rel="icon" href="/img/me-averroes-logo.webp">
+${S.verify?.google ? `<meta name="google-site-verification" content="${e(S.verify.google)}">` : ""}<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Instrument+Serif:ital@1&family=Hind+Siliguri:wght@400;600;700&display=swap">
 <script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>
 <style>
@@ -69,7 +69,7 @@ details{border-bottom:1px solid var(--line);padding:14px 0}summary{cursor:pointe
 footer{border-top:1px solid var(--line);padding:32px 0;font-size:14px;color:var(--ink-3)}footer .links{display:flex;flex-wrap:wrap;gap:8px 18px;margin:10px 0 18px}footer a{color:var(--ink-2);text-decoration:none}
 @media (max-width:600px){header nav a:not(:last-child){display:none}}
 </style></head><body>
-<header><div class="w"><a class="logo" href="/">Averroes<i></i></a><nav><a href="/#services">Services</a><a href="/#work">Work</a><a href="/#contact">Start a project</a></nav></div></header>
+<header><div class="w"><a class="logo" href="/">${e(brand.split(" ")[0])}<i></i></a><nav><a href="/#services">Services</a><a href="/#work">Work</a><a href="/#contact">Start a project</a></nav></div></header>
 <main class="w">
 <p class="crumb"><a href="/">${e(brand)}</a> / ${p.kind === "guide" ? "Guides" : "Services"} / ${e(p.name || p.h1)}</p>
 <h1>${e(p.h1)}</h1>
@@ -79,7 +79,6 @@ ${(p.sections || []).map((s) => `<h2>${e(s.h)}</h2>${String(s.p).split(/\n{2,}/)
 ${p.work.length ? `<h2>Work we have done</h2><div class="grid">${p.work.map(([t, , l, d]) => `<a class="card" href="${e(abs(l))}" rel="noopener"><b>${e(t)}</b><span>${e(d)}</span></a>`).join("")}</div>` : ""}
 ${pk ? `<h2>Packages</h2><div class="grid">${pk.map((x) => `<div class="card"><b>${e(x.t)}</b><span class="price">${e(x.price || "Custom quote")}</span><span>${e(x.f)}</span></div>`).join("")}</div>` : ""}
 ${p.faq?.length ? `<h2>${lang === "bn" ? "প্রশ্ন ও উত্তর" : "Questions"}</h2>${p.faq.map(([q, a]) => `<details><summary>${e(q)}</summary><p>${e(a)}</p></details>`).join("")}` : ""}
-${p.bn ? `<section lang="bn"><h2>${e(p.bn.h)}</h2><p>${e(p.bn.p)}</p>${(p.bn.faq || []).map(([q, a]) => `<details><summary>${e(q)}</summary><p>${e(a)}</p></details>`).join("")}</section>` : ""}
 <div class="cta"><h2 style="margin:0;color:#eef0fb">${e(p.cta || (lang === "bn" ? "আপনার প্রজেক্ট নিয়ে কথা বলি?" : "Want this for your business?"))}</h2><p>${lang === "bn" ? "২৪ ঘণ্টার মধ্যে নির্দিষ্ট কোটেশন পাবেন।" : "Send a short brief and get a fixed quote within 24 hours."}</p><a class="btn" href="/#contact">${lang === "bn" ? "প্রজেক্ট শুরু করুন" : "Start a project"}</a></div>
 </main>
 <footer><div class="w"><b style="color:var(--ink)">${e(brand)}</b><div class="links">${services}</div>${guides ? `<div class="links">${guides}</div>` : ""}<a href="${e(D.AGENCY.portfolio)}/">Founder's portfolio</a></div></footer>
@@ -89,7 +88,7 @@ ${p.bn ? `<section lang="bn"><h2>${e(p.bn.h)}</h2><p>${e(p.bn.p)}</p>${(p.bn.faq
 export default async function handler(req, res) {
   try {
     const q = query(req), kind = q.get("kind"), slug = (q.get("slug") || "").toLowerCase();
-    const D = await siteData(), S = (await settings()).content;
+    const S = (await settings()).content, D = await siteData(S);
     const p = kind === "guide" ? topicPage(S, slug) : servicePage(D, S, slug);
     if (!p) return send(res, 404, "Page not found.");
     res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=0, s-maxage=60, stale-while-revalidate=600" });
