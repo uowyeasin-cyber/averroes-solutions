@@ -7,6 +7,26 @@
   },
   "rewrites": [
     {
+      "source": "/api/login",
+      "destination": "/api/auth?a=login"
+    },
+    {
+      "source": "/api/logout",
+      "destination": "/api/auth?a=logout"
+    },
+    {
+      "source": "/api/me",
+      "destination": "/api/auth?a=me"
+    },
+    {
+      "source": "/api/status",
+      "destination": "/api/meta?a=status"
+    },
+    {
+      "source": "/api/versions",
+      "destination": "/api/meta?a=versions"
+    },
+    {
       "source": "/",
       "destination": "/api/home"
     },

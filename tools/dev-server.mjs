@@ -12,12 +12,14 @@ const routes = [
   [/^\/services\/([^/]+)$/, "page", "kind=service&slug=$1"],
   [/^\/guides\/([^/]+)$/, "page", "kind=guide&slug=$1"],
   [/^\/sitemap\.xml$/, "sitemap", ""],
+  [/^\/api\/(login|logout|me)$/, "auth", "a=$1"],
+  [/^\/api\/(status|versions)$/, "meta", "a=$1"],
 ];
 
 http.createServer(async (req, res) => {
   let p = new URL(req.url, "http://x").pathname;
   for (const [re, fn, q] of routes) {
-    if (re.test(p)) { req.url = `/api/${fn}?${p.replace(re, q)}`; p = `/api/${fn}`; break; }
+    if (re.test(p)) { const qs = new URL(req.url, "http://x").search.slice(1); req.url = `/api/${fn}?${p.replace(re, q)}${qs ? "&" + qs : ""}`; p = `/api/${fn}`; break; }
   }
   if (p.startsWith("/api/")) {
     const mod = await import(path.join(root, p + ".js")).catch(() => null);
