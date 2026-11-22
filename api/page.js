@@ -169,6 +169,9 @@ ${body(D, S, p, base)}
 export default async function handler(req, res) {
   try {
     const q = query(req), kind = q.get("kind"), slug = (q.get("slug") || "").toLowerCase();
+    // Old product addresses keep working after a rename.
+    const MOVED = { "storefront-pro": "ecommerce-studio" };
+    if (kind === "product" && MOVED[slug]) { res.writeHead(301, { Location: "/products/" + MOVED[slug], "Cache-Control": "public, max-age=86400" }); return res.end(); }
     const S = (await settings()).content, D = await siteData(S);
     const p = kind === "guide" ? topicPage(S, slug) : kind === "product" ? productPage(D, S, slug) : servicePage(D, S, slug);
     if (!p) return send(res, 404, "Page not found.");
