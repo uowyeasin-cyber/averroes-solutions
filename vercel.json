@@ -39,8 +39,16 @@
       "destination": "/api/page?kind=guide&slug=:slug"
     },
     {
+      "source": "/products/:slug",
+      "destination": "/api/page?kind=product&slug=:slug"
+    },
+    {
       "source": "/sitemap.xml",
       "destination": "/api/sitemap"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/api/sitemap?robots=1"
     }
   ],
   "headers": [

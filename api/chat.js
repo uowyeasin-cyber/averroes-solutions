@@ -5,22 +5,11 @@ import { readJSON, send, settings, siteData } from "./_lib.js";
 import { ORDER_ID, findOrder, publicView, limited } from "./_orders.js";
 
 const clip = (v, n) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, n);
-const slug = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-
-// Products for sale with the owner's edits (same rules as the shop on the home page).
-function shop(D, E) {
-  const o = E.shop || {};
-  const plansOf = (x, it) => { const pl = (x.plans || []).filter((p) => p && p.t); return pl.length ? pl : it.plans || []; };
-  const own = (E.shopAdd || []).filter((x) => x && x.n && !x.hide).map((x) => ({ n: x.n, tag: x.tag, lead: x.lead, demo: x.demo, status: x.status, plans: plansOf(x, {}), price: x.price }));
-  const base = D.AGENCY_SHOP.map((it) => { const e = o[it.n] || {}; if (e.hide) return null;
-    return { n: e.name || it.n, tag: e.tag || it.tag, lead: e.lead || it.lead, demo: e.demo || it.demo, status: e.status || it.status, plans: plansOf(e, it), price: e.price || it.price }; }).filter(Boolean);
-  return own.concat(base);
-}
 
 function knowledge(D, S) {
   const E = S.data || {}, txt = (S.text && S.text.en) || {};
-  const products = shop(D, E).map((p) => `- ${p.n} (${p.tag || "product"})${p.status === "soon" ? " [COMING SOON: not for sale yet, visitors can join the waitlist]" : ""}: ${clip(p.lead, 300)}
-  Buy link: #buy/${slug(p.n)}${p.demo ? ` · Free live demo: ${p.demo}` : ""}
+  const products = D.productList(D, E).map((p) => `- ${p.n} (${p.tag || "product"})${p.status === "soon" ? " [COMING SOON: not for sale yet, visitors can join the waitlist]" : ""}: ${clip(p.lead, 300)}
+  Buy link: #buy/${p.slug} · Product page: /products/${p.slug}${p.demo ? ` · Free live demo: ${p.demo}` : ""}
   Plans: ${(p.plans || []).map((x) => `${x.t} ${x.price || "custom quote"}${x.d ? ` (${x.d})` : ""}: ${(x.l || []).join("; ")}`).join(" | ") || p.price || "ask for a quote"}`).join("\n");
   const services = D.SERVICES.map((s) => `- ${s.t}${s.price ? ` (from ${s.price})` : ""}: ${s.p} Includes: ${(s.l || []).join("; ")}. Page: /services/${s.go}`).join("\n");
   const prices = Object.entries(D.PACKAGES).map(([k, list]) => `${D.PACKAGE_TABS[k] || k}: ${list.map((p) => `${p.t} ${p.price || "custom quote"} (${(p.l || []).slice(0, 4).join("; ")})`).join(" | ")}`).join("\n");

@@ -178,8 +178,8 @@ let dataCache;
 // Loads the browser data files (content.js + agency.js) on the server.
 export async function siteData(S) {
   if (!dataCache) {
-    const files = await Promise.all(["data/content.js", "data/agency.js", "data/apply.js"].map((f) => fs.readFile(path.join(ROOT, f), "utf8")));
-    dataCache = new Function(files.join("\n") + ";return {SITE,DEV,PROJECTS,SERVICES,SERVICE_PAGES,PACKAGES,PACKAGE_TABS,FAQ,AGENCY,AGENCY_HIDE,AGENCY_OVERRIDE,AGENCY_PRODUCTS,AGENCY_SHOP,SERVICE_BN,UI,applyEdits}")();
+    const files = await Promise.all(["data/content.js", "data/projects.js", "data/agency.js", "data/apply.js"].map((f) => fs.readFile(path.join(ROOT, f), "utf8")));
+    dataCache = new Function(files.join("\n") + ";return {SITE,DEV,PROJECTS,SERVICES,SERVICE_PAGES,PACKAGES,PACKAGE_TABS,FAQ,AGENCY,AGENCY_HIDE,AGENCY_OVERRIDE,AGENCY_PRODUCTS,AGENCY_SHOP,SHOWCASE,SERVICE_BN,UI,applyEdits,productList,productSeo}")();
   }
   // With the owner's settings, return the data with their edits (prices, services, FAQ, contact) applied.
   return S && S.data ? { ...dataCache, ...dataCache.applyEdits(dataCache, S.data) } : dataCache;

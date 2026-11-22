@@ -12,6 +12,8 @@ const routes = [
   [/^\/services\/([^/]+)$/, "page", "kind=service&slug=$1"],
   [/^\/guides\/([^/]+)$/, "page", "kind=guide&slug=$1"],
   [/^\/sitemap\.xml$/, "sitemap", ""],
+  [/^\/products\/([^/]+)$/, "page", "kind=product&slug=$1"],
+  [/^\/robots\.txt$/, "sitemap", "robots=1"],
   [/^\/api\/(login|logout|me)$/, "auth", "a=$1"],
   [/^\/api\/(status|versions)$/, "meta", "a=$1"],
 ];

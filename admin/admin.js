@@ -56,6 +56,12 @@
         content: [o.h1 || sp.h1, intro, ...(sp.points || []), ...(sp.work || []).map(w => w[0] + " " + w[3]), ...(sp.faq || []).map(f => f.join(" ")), sp.bn ? sp.bn.p : ""].join("\n"),
         faq: (sp.faq || []).length, title: o.title || sp.title.replace(/Yeasin Arafat/g, AGENCY.name), desc: o.desc || sp.meta.replace(/Yeasin Arafat/g, AGENCY.name), kw: o.kw || sp.kw, focus: o.focus || kwFirst(o.kw || sp.kw), def: sp });
     });
+    if (typeof productList === "function") productList({ AGENCY, AGENCY_SHOP, SHOWCASE, SITE, FAQ, SERVICES, PACKAGES }, S.data || {}).forEach(pr => {
+      const o = S.seo["prod:" + pr.slug] || {}, d = productSeo(pr, AGENCY.name), intro = o.intro || d.intro;
+      list.push({ id: "prod:" + pr.slug, type: "Product", name: pr.n, path: "/products/" + pr.slug, h1: o.h1 || d.h1, first: intro, intro,
+        content: [o.h1 || d.h1, intro, pr.lead, ...(pr.feats || []).map(f => f.join(" ")), ...(pr.plans || []).map(x => [x.t, x.price, x.d, ...(x.l || [])].join(" "))].join("\n"),
+        faq: 5, title: o.title || d.title, desc: o.desc || d.meta, kw: o.kw || d.kw, focus: o.focus || kwFirst(o.kw || d.kw), def: d });
+    });
     S.topics.forEach((t, i) => list.push({ id: "guide:" + i, type: "Guide", name: t.h1 || t.title || "Untitled guide", path: "/guides/" + t.slug, h1: t.h1, first: t.intro,
       content: [t.h1, t.intro, ...(t.sections || []).map(s => s.h + " " + s.p), ...(t.faq || []).map(f => f.join(" "))].join("\n"),
       faq: (t.faq || []).length, title: t.title, desc: t.desc, kw: t.kw, focus: t.focus || kwFirst(t.kw), draft: t.draft, topic: i }));
@@ -455,6 +461,7 @@
         <div class="grid2"><label class="f">Product name<input class="t" data-k="${own ? "n" : "name"}" value="${esc(own ? o.n || "" : o.name || "")}" placeholder="${esc(def.n || "e.g. Restaurant website")}"></label>
           <label class="f">Label on the photo<input class="t" data-k="tag" value="${esc(o.tag || "")}" placeholder="${esc(def.tag || "e.g. Website")}"></label>
           <label class="f">Status<select class="t" data-k="status"><option value="">Available to buy</option><option value="soon" ${(o.status || def.status) === "soon" ? "selected" : ""}>Coming soon (no checkout)</option></select></label>
+          <label class="f">Position in the shop (1 = shown first)<input class="t" type="number" min="1" max="99" data-k="rank" value="${esc(o.rank || "")}" placeholder="${own ? "1" : String(AGENCY_SHOP.findIndex(x => x.n === def.n) + 1)}"></label>
           <label class="f">Live demo link<input class="t" data-k="demo" value="${esc(o.demo || "")}" placeholder="${esc(def.demo || "https://…")}"></label></div>
         <label class="f"><span class="row"><span>Sales text</span><button type="button" class="btn small ai" data-aisales>AI write</button></span><textarea class="t" data-k="lead" rows="2" placeholder="${esc(def.lead || "What the buyer gets, in one or two sentences")}">${esc(o.lead || "")}</textarea></label>
         <div class="opts" data-opts></div>

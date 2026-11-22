@@ -60,14 +60,14 @@
     const E = (EDIT.data && EDIT.data.shop) || {};
     const plansOf = (o, it) => { const pl = (o.plans || []).filter(x => x && x.t); return pl.length ? pl : (it.plans || []); };
     const own = ((EDIT.data && EDIT.data.shopAdd) || []).filter(x => x && x.n && !x.hide).map(x => { const fe = (x.feats || []).filter(f => f && f[0]);
-      return { n: x.n, tag: x.tag || "", img: x.img || "", lead: x.lead || "", price: x.price || "", demo: x.demo || "", page: x.page || "", status: x.status || "", plans: plansOf(x, {}), feats: fe.slice(0, 3), featsAll: fe }; });
-    const all = own.concat(AGENCY_SHOP.map(it => {
+      return { n: x.n, rank: +x.rank || 0, tag: x.tag || "", img: x.img || "", lead: x.lead || "", price: x.price || "", demo: x.demo || "", page: x.page || "", status: x.status || "", plans: plansOf(x, {}), feats: fe.slice(0, 3), featsAll: fe }; });
+    const all = own.concat(AGENCY_SHOP.map((it, ix) => {
       const s = show(it.from || it.n), L = s.en || {}, o = E[it.n] || {};
       if (o.hide) return null;
       const fe = (o.feats || []).filter(f => f && f[0]), base = fe.length ? fe : (L.feats || []);
-      return { ...it, n: o.name || it.n, tag: o.tag || it.tag, img: o.img || it.img, lead: o.lead || it.lead || L.lead || L.p || "", feats: base.slice(0, 3), featsAll: base,
+      return { ...it, rank: +o.rank || ix + 1, n: o.name || it.n, tag: o.tag || it.tag, img: o.img || it.img, lead: o.lead || it.lead || L.lead || L.p || "", feats: base.slice(0, 3), featsAll: base,
         price: o.price || it.price || "", demo: o.demo || it.demo || s.demo || "", page: it.page || s.url || "", status: o.status || it.status || "", plans: plansOf(o, it) };
-    }).filter(Boolean));
+    }).filter(Boolean)).sort((a, b) => a.rank - b.rank);
     return [...all.filter(x => x.status !== "soon"), ...all.filter(x => x.status === "soon")];
   }
   const ready = () => shopItems().filter(x => x.status !== "soon");
@@ -90,7 +90,7 @@
         <div class="sl-track">${SL.map((p, i) => { const fp = fromPrice(p);
           return `<article class="sl-slide" role="group" aria-roledescription="slide" aria-label="${i + 1} ${esc(t("slOf"))} ${n}: ${esc(p.n)}">
             <button class="sl-im" type="button" data-buy="${esc(p.n)}" tabindex="-1" aria-label="${esc(p.n)}"><span class="pic"><img src="${img(p.img)}" alt="${esc(p.n)}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'}></span><span class="badge"><i></i>${esc(t("slReady"))}</span></button>
-            <div class="sl-info"><div><span class="tg">${esc(p.tag)}</span><h3>${esc(p.n)}</h3><p>${esc(p.lead)}</p></div>
+            <div class="sl-info"><div><span class="tg">${esc(p.tag)}</span><h3><a href="/products/${slug(p.n)}">${esc(p.n)}</a></h3><p>${esc(p.lead)}</p></div>
               <div class="sl-pr"><small>${esc(fp ? t("from") : t("shopPrice"))}</small><b>${esc(fp || t("shopAsk"))}</b></div></div>
             <div class="sl-acts"><button class="btn solid" type="button" data-buy="${esc(p.n)}">${esc(t("shopBuy"))}${ic("arr", "i arr")}</button>${p.demo ? `<a class="btn" href="${esc(p.demo)}" target="_blank" rel="noopener">${ic("eye")}${esc(t("liveDemo"))}</a>` : ""}</div>
           </article>`; }).join("")}</div>
@@ -137,7 +137,7 @@
   const card = p => { const soon = p.status === "soon", fp = fromPrice(p);
     return `<article class="card reveal ${soon ? "soon" : ""}">
       <button class="im" type="button" data-buy="${esc(p.n)}" aria-label="${esc(p.n)}"><img src="${img(p.img)}" alt="${esc(p.n)}" loading="lazy"></button>
-      <div class="bd"><span class="tg">${esc(p.tag)}${soon ? ` <span class="sn">${esc(t("soonTag"))}</span>` : ""}</span><h3>${esc(p.n)}</h3><p>${esc(p.lead)}</p>
+      <div class="bd"><span class="tg">${esc(p.tag)}${soon ? ` <span class="sn">${esc(t("soonTag"))}</span>` : ""}</span><h3><a href="/products/${slug(p.n)}">${esc(p.n)}</a></h3><p>${esc(p.lead)}</p>
         ${soon || !p.feats.length ? "" : `<ul>${p.feats.map(f => `<li>${ic("check")}<span>${esc(f[0])}${f[1] ? `<span class="muted"> · ${esc(f[1])}</span>` : ""}</span></li>`).join("")}</ul>`}
         <div class="ft">${soon ? "" : `<div class="price"><small>${esc(fp ? t("from") : t("shopPrice"))}</small><b>${esc(fp || t("shopAsk"))}</b></div>`}
           <div class="acts">${p.demo ? `<a class="btn sm" href="${esc(p.demo)}" target="_blank" rel="noopener">${esc(t("liveDemo"))}</a>` : ""}<button class="btn solid sm" type="button" data-buy="${esc(p.n)}">${esc(soon ? t("soonBtn") : t("shopBuy"))}</button></div></div>
@@ -285,7 +285,7 @@
     if (keepB > 0) $("#fBudget").selectedIndex = keepB;
   }
   function renderFooter() {
-    $("#fshop").innerHTML = ready().slice(0, 6).map(p => `<a href="#buy/${slug(p.n)}" data-buy="${esc(p.n)}">${esc(p.n)}</a>`).join("");
+    $("#fshop").innerHTML = ready().slice(0, 6).map(p => `<a href="/products/${slug(p.n)}" data-buy="${esc(p.n)}">${esc(p.n)}</a>`).join("");
     $("#fsvc").innerHTML = SERVICES.slice(0, 6).map(s => `<a href="${ONLINE ? "/services/" + esc(s.go) : "#services"}">${esc(s.t)}</a>`).join("");
     const g = (EDIT.topics || []).filter(x => !x.draft), box = $("#guides");
     box.hidden = !g.length;
@@ -346,7 +346,7 @@
       body = `<div class="st-grid">
         <div class="st-main">
           <div class="st-shot"><img src="${img(p.img)}" alt="${esc(p.n)}"></div>
-          <span class="sp-tag">${esc(p.tag)}</span><h2 id="stTitle">${esc(p.n)}</h2><p class="st-lead">${esc(p.lead)}</p>
+          <span class="sp-tag">${esc(p.tag)}</span><h2 id="stTitle">${esc(p.n)}</h2><p class="st-lead">${esc(p.lead)}</p><a class="st-more" href="/products/${slug(p.n)}">${esc(t("stMore"))}${ic("arr", "i arr")}</a>
           ${feats.length ? `<h4>${esc(t("stWhat"))}</h4><ul class="st-feats">${feats.map(f => `<li>${ic("check")}<span><b>${esc(f[0])}</b>${f[1] ? " " + esc(f[1]) : ""}</span></li>`).join("")}</ul>` : ""}
           ${p.status === "soon" ? "" : `<h4>${esc(t("stHow"))}</h4><ol class="st-how"><li><b>${esc(t("stHow1"))}</b><span>${esc(t("stHow1p"))}</span></li><li><b>${esc(t("stHow2"))}</b><span>${esc(t("stHow2p"))}</span></li><li><b>${esc(t("stHow3"))}</b><span>${esc(t("stHow3p"))}</span></li></ol>`}
         </div>
