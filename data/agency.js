@@ -30,7 +30,7 @@ const AGENCY_FEATURED = ["Sunnah Store", "halal-gyro-spot", "AI Agent Front Desk
 // Products for sale. status "soon" shows the product under "Coming soon" (no checkout, a "Notify me" button instead).
 // Every field, plan and price can be changed in the admin (Projects & shop). Prices here are starting suggestions.
 const AGENCY_SHOP = [
-  { n: "Storefront Pro", from: "Sunnah Store", tag: "E-commerce store", img: "bn-storefront-pro", demo: "https://sunnahstore.vercel.app/", page: "https://yeasinarafatbd.vercel.app/storefront-pro/",
+  { n: "E-commerce Studio", from: "Sunnah Store", tag: "Online store", img: "bn-ecommerce-studio", demo: "https://sunnahstore.vercel.app/", page: "https://yeasinarafatbd.vercel.app/ecommerce-studio/",
     lead: "The complete online store behind Sunnah Store, ready for your brand: storefront, admin panel, online payments and courier tracking.",
     plans: [
       { t: "Starter", price: "USD 299", d: "Live in 5 days", l: ["Storefront with your logo, colours and products", "Up to 50 products added for you", "Cash on delivery and one online payment method", "Launched on a free subdomain"] },
@@ -60,7 +60,7 @@ const AGENCY_SHOP = [
 ];
 
 // Same-size banners (1600x1000) for the work cards, in each project's own colours.
-const AGENCY_BANNERS = { "Sunnah Store": "bn-storefront-pro", "halal-gyro-spot": "bn-halal-gyro-spot", "AI Agent Front Desk": "bn-ai-front-desk" };
+const AGENCY_BANNERS = { "Sunnah Store": "bn-ecommerce-studio", "halal-gyro-spot": "bn-halal-gyro-spot", "AI Agent Front Desk": "bn-ai-front-desk" };
 
 // How a project runs. The order is real: each step needs the one before it.
 const AGENCY_PROCESS = [
@@ -147,7 +147,7 @@ const UI = {
     orEmail: "Email", footer: "A digital studio for apps, websites, AI and brands.", footFounder: "About the founder",
     footServices: "Services", footStudio: "Studio", footContact: "Contact", likeThis: "I want something like this",
     annText: "New: a complete online store, live in 7 days, with",
-    annLink: "Storefront Pro",
+    annLink: "E-commerce Studio",
     heroBadge: "New",
     trustedBy: "Trusted by businesses in the USA, Malaysia and Bangladesh",
     slReady: "Ready to buy",

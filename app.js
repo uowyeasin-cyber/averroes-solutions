@@ -52,7 +52,7 @@
   }
 
   // ---------- shop data ----------
-  const slug = s => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const slug = s => String(s || "").toLowerCase().replace(/\be-commerce/g, "ecommerce").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   const priceNum = p => { const m = String(p || "").replace(/,/g, "").match(/(\d+(?:\.\d+)?)/); return m ? +m[1] : null; };
   const fromPrice = p => { const ps = (p.plans || []).map(x => x.price).filter(x => priceNum(x) != null); if (!ps.length) return p.price || ""; return ps.sort((a, b) => priceNum(a) - priceNum(b))[0]; };
   // Products for sale. Finished products come first; anything marked "soon" is kept apart and shown last.
@@ -316,6 +316,7 @@
   const st = { p: null, plan: 0, step: "product", order: null };
   const SB = $("#store");
   function openStore(name, planIdx) {
+    if (slug(name) === "storefront-pro") name = "E-commerce Studio"; // old name, kept for old links
     const p = shopItems().find(x => slug(x.n) === slug(name)); if (!p) return;
     st.p = p; st.step = p.status === "soon" ? "notify" : "product";
     st.plan = planIdx != null && p.plans[planIdx] ? +planIdx : Math.max(0, (p.plans || []).findIndex(x => x.pop));

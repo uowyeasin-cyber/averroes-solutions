@@ -67,5 +67,12 @@
       "path": "/api/autopilot",
       "schedule": "0 3 * * 1"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/products/storefront-pro",
+      "destination": "/products/ecommerce-studio",
+      "permanent": true
+    }
   ]
 }

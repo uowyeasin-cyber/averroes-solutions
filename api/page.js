@@ -82,7 +82,7 @@ export function render(D, S, p, base) {
   const section = p.kind === "product" ? ["Shop", base + "/#shop"] : p.kind === "guide" ? ["Guides", base + "/#guides"] : ["Services", base + "/#services"];
   const ld = [{ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
     { "@type": "ListItem", position: 1, name: brand, item: base + "/" }, { "@type": "ListItem", position: 2, name: section[0], item: section[1] }, { "@type": "ListItem", position: 3, name: p.name || p.h1, item: url }] }];
-  let image = base + "/img/bn-storefront-pro.webp";
+  let image = base + "/img/bn-ecommerce-studio.webp";
   if (p.kind === "product") {
     const x = p.product, offers = (x.plans || []).filter((pl) => num(pl.price) != null).map((pl) => ({ "@type": "Offer", name: `${x.n} · ${pl.t}`, price: num(pl.price), priceCurrency: cur(pl.price),
       availability: x.status === "soon" ? "https://schema.org/PreOrder" : "https://schema.org/InStock", url, seller: { "@id": base + "/#organization" } }));

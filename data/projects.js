@@ -636,8 +636,8 @@ const SHOWCASE = {
    "p": "একবার বলুন, বাকিটা AI করবে: বাংলা ও ইংরেজিতে ভয়েস নোট, রিমাইন্ডার, টাকার হিসাব আর মেসেজ।"
   }
  },
- "Storefront Pro": {
-  "url": "https://yeasinarafatbd.vercel.app/storefront-pro/",
+ "E-commerce Studio": {
+  "url": "https://yeasinarafatbd.vercel.app/ecommerce-studio/",
   "cover": "dev-sunnah",
   "stage": "ready",
   "product": true,

@@ -32,7 +32,7 @@ function applyEdits(D, E) {
 function productList(D, E) {
   E = E || {};
   const o = E.shop || {}, SC = D.SHOWCASE || {};
-  const slug = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const slug = (s) => String(s || "").toLowerCase().replace(/\be-commerce/g, "ecommerce").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   const plansOf = (x, it) => { const pl = (x.plans || []).filter((p) => p && p.t); return pl.length ? pl : it.plans || []; };
   const own = (E.shopAdd || []).filter((x) => x && x.n && !x.hide).map((x) => {
     const fe = (x.feats || []).filter((f) => f && f[0]);
